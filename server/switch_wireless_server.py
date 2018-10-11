@@ -11,10 +11,12 @@
 # ACTION can be either "on", "off" or "toggle"                                    #
 
 
-import subprocess
-import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from os import devnull
+# import subprocess
+# import sys
+from subprocess import call, check_output
+from sys import exc_info
 from urllib import parse
 
 # Pleas specify the desired port
@@ -41,7 +43,7 @@ class GetHandler(BaseHTTPRequestHandler):
                 print(error_message)
             return
         except:
-            print(sys.exc_info())
+            print(exc_info())
 
 
 # Rfkill offers a kernel interface to disable all wireless communication devices to save power
@@ -51,24 +53,24 @@ class GetHandler(BaseHTTPRequestHandler):
 def switch(command):
     # Turn on/off /toggle all wireless communication via rfkill
     if command == 'toggle':
-        ret = subprocess.call("rfkill "
+        ret = call("rfkill "
                               "| grep blocked "
                               "| awk '{($4==\"unblocked\") ? system(\"rfkill block \" $1) "
                               ": system(\"rfkill unblock \" $1)}'", shell=True)
 
     elif command == 'on':
-        ret = subprocess.call("rfkill list "
+        ret = call("rfkill list "
                               "| grep '^[0-9]' "
                               "| sed 's/:.*$//g' "
                               "| xargs rfkill unblock", shell=True)
 
     else:
-        ret = subprocess.call("rfkill list "
+        ret = call("rfkill list "
                               "| grep '^[0-9]' "
                               "| sed 's/:.*$//g' "
                               "| xargs rfkill block", shell=True, stdout=DEVNULL, stderr=DEVNULL)
 
-    status = subprocess.check_output("rfkill "
+    status = check_output("rfkill "
                                      "| grep -v '^ID' "
                                      "| awk '{ print $2 \" \" $4}' ", shell=True).decode('utf-8')
     print(status)
