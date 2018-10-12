@@ -79,3 +79,6 @@ $ curl 'http://<HOST>:31415/?action=toggle'
 bluetooth unblocked
 wlan unblocked
  ```
+ 
+ ## TODO
+ * Make a genuine python package that can be installed with `pip`

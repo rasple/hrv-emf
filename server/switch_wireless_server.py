@@ -17,7 +17,7 @@ from subprocess import call, check_output
 from sys import exc_info
 from urllib import parse
 
-# Pleas specify the desired port
+# Please specify the desired port
 PORT = 31415
 ACCEPTED_ACTIONS = ["off", "on", "toggle"]
 DEVNULL = open(devnull, 'w')
