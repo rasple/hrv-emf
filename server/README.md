@@ -22,23 +22,25 @@ Recommended:
 
     ```$ wget https://raw.githubusercontent.com/rasple/hrv-emf/master/server/switch_wireless_server.py```
 
-2. Make it executable
+2. Change to PORT variable in the script if you need one different from the default (31415)
+
+3. Make it executable
 
     ```# chmod +x switch_wireless_server.py```
 
-3. Start the script
+4. Start the script
 
     There are two ways the script can be run automatically. The first one is highly preferred.
 
     ### Systemd service (systemd distros)
     
-    * The file `rfswitch.service` is provided to be used to start the script as a systemd daemon.
+    The file `rfswitch.service` is provided to be used to start the script as a systemd daemon.
         
-    * Place the script it in the `/etc/systemd/system/` directory
+    Place the script it in the `/etc/systemd/system/` directory
     
-    * Edit the `rfswitch.service` file to have the correct path to the `switch_wireless_server.py` script
+    Edit the `rfswitch.service` file to have the correct path to the `switch_wireless_server.py` script
      
-    * Reload the daemons to load the new service. Then enable and run it
+    Reload the daemons to load the new service. Then enable and run it
         
         `# systemctl daemon-reload`
         
@@ -48,23 +50,32 @@ Recommended:
        
      ### cronjob (any system)
      
-     * Use the package manager of your distro to install cronie if it isn't already
+     Use the package manager of your distro to install cronie if it isn't already
      
      `# pacman -S cronie`
      
-     * Enable the cron service
+     Enable the cron service
      
      `# systemctl enable cronie`
 
-     * Edit the crontab of your root user
+     Edit the crontab of your root user
      
      `# crontab -e`
      
-     * Add the following line and replace the placeholder with your path to the script. If you need logs, direct the output to your logfile. Consider however that there is no log rotation.
+     Add the following line and replace the placeholder with your path to the script. If you need logs, direct the output to your logfile. Consider however that there is no log rotation.
      
      `@reboot /<PATH_TO_THE_SCRIPT>/switch_wireless_server.py > /dev/null 2>&1`
      
-     * On the next reboot, the service should run. Verify with
+     On the next reboot, the service should run. Verify with
      
      `$ ps aux | grep switch_wireless_server.py`
          
+ ## Testing
+ 
+ The functionality can be verified with `curl`. Keep in mind that RF is turned off when the script is run.
+ 
+ ```
+$ curl 'http://<HOST>:31415/?action=toggle'
+bluetooth unblocked
+wlan unblocked
+ ```
