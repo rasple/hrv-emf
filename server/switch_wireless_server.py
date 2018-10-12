@@ -13,8 +13,6 @@
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from os import devnull
-# import subprocess
-# import sys
 from subprocess import call, check_output
 from sys import exc_info
 from urllib import parse
