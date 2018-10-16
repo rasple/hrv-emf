@@ -2,9 +2,9 @@
 
 This Script starts a webserver and turns wireless (wifi & bluetooth) on and off when the right HTTP GET request is sent to the specified port.
 
-`GET \<HOST\>:\<PORT\>/?action=\<ACTION\> HTTP/1.1`
+`GET <HOST>:<PORT>/?action=<ACTION> HTTP/1.1`
 
-`\<ACTION\>` can be either `on`, `off` or `toggle`
+`<ACTION>` can be either `on`, `off` or `toggle`
 
 The user receives information on the status of the wireless devices as response.
 
