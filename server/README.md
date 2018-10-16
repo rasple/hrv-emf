@@ -4,9 +4,9 @@ This Script starts a webserver and turns wireless (wifi & bluetooth) on and off 
 
 `GET <HOST>:<PORT>/?action=<ACTION> HTTP/1.1`
 
-`<ACTION>` can be either `on`, `off` or `toggle`
+`<ACTION>` can be either `on`, `off`, `toggle` or `status`
 
-The user receives information on the status of the wireless devices as response.
+The user always receives information on the status of the wireless devices as response.
 
 ## Requirements
 * GNU Core Utilities
