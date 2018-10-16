@@ -13,14 +13,26 @@
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from os import devnull
+from shutil import which
 from subprocess import call, check_output
 from sys import exc_info
 from urllib import parse
 
 # Please specify the desired port
 PORT = 31415
-ACCEPTED_ACTIONS = ["off", "on", "toggle"]
+
 DEVNULL = open(devnull, 'w')
+ACCEPTED_ACTIONS = ["off", "on", "toggle", "status"]
+REQUIRED_BINARIES = ['xargs', 'grep', 'rfkill', 'sed', 'awk']
+
+
+# Check if required binaries are available
+def check_bins(bins):
+    for bin in bins:
+        if not which(bin):
+            print('Error: Dependency "' + bin + '" not found')
+            print('Please check that "' + bin + '" is installed and in PATH')
+            exit(-1)
 
 
 class GetHandler(BaseHTTPRequestHandler):
@@ -28,17 +40,20 @@ class GetHandler(BaseHTTPRequestHandler):
         try:
             parsed = parse.urlparse(self.path)
             params = parse.parse_qs(parsed.query)
-            action = params['action'][0].lower()
+            if 'action' in params:
+                action = params['action'][0].lower()
 
-            if action in ACCEPTED_ACTIONS:
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(switch(action).encode('utf-8'))
+                if action in ACCEPTED_ACTIONS:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/html')
+                    self.end_headers()
+                    self.wfile.write(switch(action).encode('utf-8'))
+                else:
+                    error_message = 'Unknown parameter value for "action": ' + params['action'][0]
+                    self.send_error(400, error_message)
+                    print(error_message)
             else:
-                error_message = 'Unknown parameter value for "action": ' + params['action'][0]
-                self.send_error(400, error_message)
-                print(error_message)
+                self.send_error(400, 'Please specify "action" parameter')
             return
         except:
             print(exc_info())
@@ -51,26 +66,28 @@ class GetHandler(BaseHTTPRequestHandler):
 def switch(command):
     # Turn on/off /toggle all wireless communication via rfkill
     if command == 'toggle':
-        ret = call("rfkill "
-                              "| grep blocked "
-                              "| awk '{($4==\"unblocked\") ? system(\"rfkill block \" $1) "
-                              ": system(\"rfkill unblock \" $1)}'", shell=True)
+        print(call("rfkill "
+                   "| grep blocked "
+                   "| awk '{($4==\"unblocked\") ? system(\"rfkill block \" $1) "
+                   ": system(\"rfkill unblock \" $1)}'", shell=True))
 
     elif command == 'on':
-        ret = call("rfkill list "
-                              "| grep '^[0-9]' "
-                              "| sed 's/:.*$//g' "
-                              "| xargs rfkill unblock", shell=True)
+        print(call("rfkill list "
+                   "| grep '^[0-9]' "
+                   "| sed 's/:.*$//g' "
+                   "| xargs rfkill unblock", shell=True))
 
     else:
-        ret = call("rfkill list "
-                              "| grep '^[0-9]' "
-                              "| sed 's/:.*$//g' "
-                              "| xargs rfkill block", shell=True, stdout=DEVNULL, stderr=DEVNULL)
+        # This command produces an error because when the first bluetooth device is deactivated the second one disappears
+        # Since everything else works fine the output of the command has been muted
+        print(call("rfkill list "
+                   "| grep '^[0-9]' "
+                   "| sed 's/:.*$//g' "
+                   "| xargs rfkill block", shell=True, stdout=DEVNULL, stderr=DEVNULL))
 
     status = check_output("rfkill "
-                                     "| grep -v '^ID' "
-                                     "| awk '{ print $2 \" \" $4}' ", shell=True).decode('utf-8')
+                          "| grep -v '^ID' "
+                          "| awk '{ print $2 \" \" $4}' ", shell=True).decode('utf-8')
     print(status)
 
     return status
@@ -78,6 +95,7 @@ def switch(command):
 
 try:
     # Start Webserver in and turn wireless off first
+    check_bins(REQUIRED_BINARIES)
     switch("off")
     server = HTTPServer(('0.0.0.0', PORT), GetHandler)
     print('starting wireless switching server')
