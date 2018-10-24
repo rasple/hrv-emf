@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 # Author: Frank Meier                                                             #
 #                                                                                 #
@@ -66,28 +66,20 @@ class GetHandler(BaseHTTPRequestHandler):
 def switch(command):
     # Turn on/off /toggle all wireless communication via rfkill
     if command == 'toggle':
-        print(call("rfkill "
+        print(call("rfkill list "
                    "| grep blocked "
-                   "| awk '{($4==\"unblocked\") ? system(\"rfkill block \" $1) "
-                   ": system(\"rfkill unblock \" $1)}'", shell=True))
+                   "| awk '{($4==\"unblocked\") ? system(\"rfkill block all \") "
+                   ": system(\"rfkill unblock all \")}'", shell=True))
 
     elif command == 'on':
-        print(call("rfkill list "
-                   "| grep '^[0-9]' "
-                   "| sed 's/:.*$//g' "
-                   "| xargs rfkill unblock", shell=True))
+        print(call("fkill unblock all"), shell=True)
 
     else:
         # This command produces an error because when the first bluetooth device is deactivated the second one disappears
         # Since everything else works fine the output of the command has been muted
-        print(call("rfkill list "
-                   "| grep '^[0-9]' "
-                   "| sed 's/:.*$//g' "
-                   "| xargs rfkill block", shell=True, stdout=DEVNULL, stderr=DEVNULL))
+        print(call("rfkill block all"), shell=True)
 
-    status = check_output("rfkill "
-                          "| grep -v '^ID' "
-                          "| awk '{ print $2 \" \" $4}' ", shell=True).decode('utf-8')
+    status = check_output("rfkill list", shell=True).decode('utf-8')
     print(status)
 
     return status

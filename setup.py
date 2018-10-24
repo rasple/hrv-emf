@@ -8,7 +8,7 @@ setup(name='hrv-emf-server',
       author_email='it16078@lehre.dhbw-stuttgart.de',
       license='GPLv3',
       packages=find_packages(),
-      python_requires=">=3.5",
+      python_requires=">=3.3",
       install_requires=[]
       )
 
