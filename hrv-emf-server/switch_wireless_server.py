@@ -72,12 +72,12 @@ def switch(command):
                    ": system(\"rfkill unblock all \")}'", shell=True))
 
     elif command == 'on':
-        print(call("fkill unblock all"), shell=True)
+        print(call("fkill unblock all", shell=True))
 
     else:
         # This command produces an error because when the first bluetooth device is deactivated the second one disappears
         # Since everything else works fine the output of the command has been muted
-        print(call("rfkill block all"), shell=True)
+        print(call("rfkill block all", shell=True))
 
     status = check_output("rfkill list", shell=True).decode('utf-8')
     print(status)
