@@ -2,7 +2,7 @@
 Description=The purpose of this Script is to provide an easy way to turn RF on/off remotely on a GNU/Linux system with the GNU coreutils installed
 
 [Service]
-ExecStart=/bin/env python /usr/local/switch_wireless_server.py
+ExecStart=/usr/bin/env python3 /usr/local/switch_wireless_server.py
 
 [Install]
 WantedBy=multi-user.target
